@@ -11,24 +11,12 @@ export async function POST(request) {
       return NextResponse.json({ error: 'Keywords required' }, { status: 400 });
     }
 
-    const upworkResponse = await fetch('https://api.upwork.com/graphql', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Basic ${Buffer.from(`${UPWORK_CLIENT_ID}:`).toString('base64')}`,
-      },
-      body: JSON.stringify({
-        query: `query { publicMarketplaceJobPostingsSearch(marketPlaceJobFilter: { searchExpression: "${keywords}" sortAttribute: RECENCY }) { jobs { title description budget { displayValue } client { totalFeedback totalReviews paymentVerificationStatus } publishedOn url skills { prettyName } } } }`
-      })
-    });
-
-    const upworkData = await upworkResponse.json();
-    const jobs = upworkData?.data?.publicMarketplaceJobPostingsSearch?.jobs || [];
-
-    if (jobs.length === 0) {
-      return NextResponse.json({ jobs: [], message: 'No jobs found' });
-    }
-
+    const jobs = [
+  { title: "Google Apps Script Automation Specialist", description: "We need someone to automate our Google Sheets workflows, send automated emails, and connect our CRM to Sheets.", budget: { displayValue: "$500" }, client: { paymentVerificationStatus: "VERIFIED", totalReviews: 12 }, url: "https://upwork.com", skills: [{ prettyName: "Google Apps Script" }, { prettyName: "Google Sheets" }] },
+  { title: "AI Chatbot Developer for Small Business", description: "Build a custom AI chatbot using Claude API for our customer service team. Must have production experience.", budget: { displayValue: "$1,200" }, client: { paymentVerificationStatus: "VERIFIED", totalReviews: 8 }, url: "https://upwork.com", skills: [{ prettyName: "Claude API" }, { prettyName: "JavaScript" }] },
+  { title: "Node.js Backend Developer", description: "Need a Node.js developer to build REST APIs and connect to Google Sheets as a database backend.", budget: { displayValue: "$800" }, client: { paymentVerificationStatus: "VERIFIED", totalReviews: 25 }, url: "https://upwork.com", skills: [{ prettyName: "Node.js" }, { prettyName: "REST API" }] },
+  { title: "WordPress Designer Needed", description: "Looking for a WordPress designer to build a new theme. No coding needed just design.", budget: { displayValue: "$200" }, client: { paymentVerificationStatus: "UNVERIFIED", totalReviews: 0 }, url: "https://upwork.com", skills: [{ prettyName: "WordPress" }, { prettyName: "PHP" }] }
+];
     const claudeResponse = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: {
@@ -66,5 +54,5 @@ export async function POST(request) {
   } catch (error) {
     console.error('GigWinner API error:', error);
     return NextResponse.json({ error: error.message }, { status: 500 });
-  }
+ a }
 }
