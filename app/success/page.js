@@ -1,8 +1,8 @@
 'use client';
-import { useEffect } from 'react';
+import { useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 
-export default function Success() {
+function SuccessContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -18,5 +18,13 @@ export default function Success() {
       <h1 style={{ color: '#00ff88', fontSize: '28px', fontWeight: 'bold' }}>You're Pro!</h1>
       <p style={{ color: '#888', fontSize: '16px' }}>Redirecting you back to GigWinner...</p>
     </div>
+  );
+}
+
+export default function Success() {
+  return (
+    <Suspense>
+      <SuccessContent />
+    </Suspense>
   );
 }
