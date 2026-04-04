@@ -149,7 +149,11 @@ export default function Home() {
             </div>
 
             <button
-              onClick={() => { setIsPro(true); setShowUpgrade(false); }}
+              onClick={async () => {
+  const res = await fetch('/api/checkout', { method: 'POST' });
+  const data = await res.json();
+  if (data.url) window.location.href = data.url;
+}}
               style={{ width: '100%', background: '#22c55e', color: '#000', border: 'none', padding: '16px', borderRadius: '8px', fontWeight: 800, fontSize: '1.1rem', cursor: 'pointer', marginBottom: '12px' }}
             >
               Start Pro — $9.99/month
