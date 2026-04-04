@@ -114,7 +114,7 @@ export default function Home() {
               onClick={() => setShowUpgrade(true)}
               style={{ background: '#22c55e', color: '#000', border: 'none', padding: '8px 16px', borderRadius: '6px', fontWeight: 700, fontSize: '0.8rem', cursor: 'pointer' }}
             >
-              Upgrade $10/mo
+              Upgrade $9.99/mo
             </button>
           )}
         </div>
@@ -143,7 +143,7 @@ export default function Home() {
             </div>
 
             <div style={{ background: '#0a0a0a', borderRadius: '10px', padding: '20px', marginBottom: '24px', textAlign: 'center' }}>
-              <div style={{ fontSize: '2.5rem', fontWeight: 800, color: '#22c55e' }}>$10</div>
+              <div style={{ fontSize: '2.5rem', fontWeight: 800, color: '#22c55e' }}>$9.99</div>
               <div style={{ fontSize: '0.85rem', color: '#666' }}>per month — cancel anytime</div>
               <div style={{ fontSize: '0.75rem', color: '#444', marginTop: '8px' }}>One landed gig pays for years of GigWinner</div>
             </div>
@@ -152,7 +152,7 @@ export default function Home() {
               onClick={() => { setIsPro(true); setShowUpgrade(false); }}
               style={{ width: '100%', background: '#22c55e', color: '#000', border: 'none', padding: '16px', borderRadius: '8px', fontWeight: 800, fontSize: '1.1rem', cursor: 'pointer', marginBottom: '12px' }}
             >
-              Start Pro — $10/month
+              Start Pro — $9.99/month
             </button>
             <button
               onClick={() => setShowUpgrade(false)}
