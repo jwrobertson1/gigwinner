@@ -14,7 +14,10 @@ export default function Home() {
   const [showUpgrade, setShowUpgrade] = useState(false);
   const [proposals, setProposals] = useState({});
   const [generatingProposal, setGeneratingProposal] = useState(null);
-  const [isPro, setIsPro] = useState(false);
+  const [isPro, setIsPro] = useState(() => {
+  if (typeof window === 'undefined') return false;
+  return document.cookie.includes('gigwinner_pro=true');
+});
 
   useEffect(() => {
     const today = new Date().toDateString();
