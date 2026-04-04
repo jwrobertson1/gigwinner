@@ -14,12 +14,14 @@ export default function Home() {
   const [showUpgrade, setShowUpgrade] = useState(false);
   const [proposals, setProposals] = useState({});
   const [generatingProposal, setGeneratingProposal] = useState(null);
-  const [isPro, setIsPro] = useState(() => {
-  if (typeof window === 'undefined') return false;
-  return document.cookie.includes('gigwinner_pro=true');
-});
+  const [tier, setTier] = useState('free');
 
   useEffect(() => {
+    const cookies = document.cookie;
+    if (cookies.includes('gigwinner_tier=pro')) setTier('pro');
+    else if (cookies.includes('gigwinner_tier=starter')) setTier('starter');
+    else setTier('free');
+
     const today = new Date().toDateString();
     const stored = JSON.parse(localStorage.getItem('gw_usage') || '{}');
     if (stored.date === today) {
@@ -28,6 +30,9 @@ export default function Home() {
       localStorage.setItem('gw_usage', JSON.stringify({ date: today, count: 0 }));
     }
   }, []);
+
+  const isPaid = tier === 'starter' || tier === 'pro';
+  const isPro = tier === 'pro';
 
   const incrementSearch = () => {
     const today = new Date().toDateString();
@@ -38,7 +43,7 @@ export default function Home() {
 
   const search = async () => {
     if (!keywords) return;
-    if (!isPro && searchCount >= FREE_LIMIT) {
+    if (!isPaid && searchCount >= FREE_LIMIT) {
       setShowUpgrade(true);
       return;
     }
@@ -85,6 +90,16 @@ export default function Home() {
     }
   };
 
+  const checkout = async (selectedTier) => {
+    const res = await fetch('/api/checkout', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ tier: selectedTier })
+    });
+    const data = await res.json();
+    if (data.url) window.location.href = data.url;
+  };
+
   const scoreColor = (score) => {
     if (score >= 8) return '#22c55e';
     if (score >= 6) return '#f59e0b';
@@ -103,21 +118,33 @@ export default function Home() {
           <div style={{ fontSize: '0.85rem', color: '#666' }}>AI-powered Upwork job matching</div>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-          {!isPro && (
+          {!isPaid && (
             <div style={{ fontSize: '0.8rem', color: '#666' }}>
               {searchesLeft} free search{searchesLeft !== 1 ? 'es' : ''} left today
             </div>
           )}
-          {isPro ? (
+          {tier === 'pro' ? (
             <div style={{ background: '#22c55e', color: '#000', padding: '6px 14px', borderRadius: '20px', fontSize: '0.8rem', fontWeight: 700 }}>
               ⚡ Pro
+            </div>
+          ) : tier === 'starter' ? (
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <div style={{ background: '#f59e0b', color: '#000', padding: '6px 14px', borderRadius: '20px', fontSize: '0.8rem', fontWeight: 700 }}>
+                ⭐ Starter
+              </div>
+              <button
+                onClick={() => setShowUpgrade(true)}
+                style={{ background: '#22c55e', color: '#000', border: 'none', padding: '8px 16px', borderRadius: '6px', fontWeight: 700, fontSize: '0.8rem', cursor: 'pointer' }}
+              >
+                Upgrade to Pro
+              </button>
             </div>
           ) : (
             <button
               onClick={() => setShowUpgrade(true)}
               style={{ background: '#22c55e', color: '#000', border: 'none', padding: '8px 16px', borderRadius: '6px', fontWeight: 700, fontSize: '0.8rem', cursor: 'pointer' }}
             >
-              Upgrade $9.99/mo
+              Upgrade
             </button>
           )}
         </div>
@@ -126,41 +153,60 @@ export default function Home() {
       {/* Upgrade Modal */}
       {showUpgrade && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.8)', zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px' }}>
-          <div style={{ background: '#111', border: '1px solid #333', borderRadius: '16px', padding: '40px', maxWidth: '480px', width: '100%' }}>
-            <div style={{ fontSize: '1.5rem', fontWeight: 800, color: '#22c55e', marginBottom: '8px' }}>⚡ Upgrade to Pro</div>
+          <div style={{ background: '#111', border: '1px solid #333', borderRadius: '16px', padding: '40px', maxWidth: '600px', width: '100%' }}>
+            <div style={{ fontSize: '1.5rem', fontWeight: 800, color: '#22c55e', marginBottom: '8px' }}>⚡ Choose Your Plan</div>
             <div style={{ fontSize: '0.9rem', color: '#888', marginBottom: '32px' }}>Stop missing the best gigs. Let AI do the work.</div>
 
-            <div style={{ marginBottom: '32px' }}>
-              {[
-                ['Unlimited daily searches', true],
-                ['AI proposal drafting — in your voice', true],
-                ['Smart job scoring with red flag detection', true],
-                ['Daily top matches email digest', true],
-                ['Profile learning — gets smarter over time', true],
-              ].map(([feature, included], i) => (
-                <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' }}>
-                  <span style={{ color: '#22c55e', fontWeight: 700 }}>✓</span>
-                  <span style={{ fontSize: '0.9rem', color: '#ccc' }}>{feature}</span>
-                </div>
-              ))}
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '24px' }}>
+              
+              {/* Starter */}
+              <div style={{ background: '#0a0a0a', border: '1px solid #333', borderRadius: '12px', padding: '24px' }}>
+                <div style={{ fontSize: '1rem', fontWeight: 800, color: '#f59e0b', marginBottom: '4px' }}>⭐ Starter</div>
+                <div style={{ fontSize: '2rem', fontWeight: 800, color: '#fff', marginBottom: '4px' }}>$9.99</div>
+                <div style={{ fontSize: '0.8rem', color: '#666', marginBottom: '20px' }}>per month</div>
+                {[
+                  'Unlimited daily searches',
+                  'Smart job scoring',
+                  'Red flag detection',
+                  'Daily email digest',
+                ].map((f, i) => (
+                  <div key={i} style={{ display: 'flex', gap: '8px', marginBottom: '10px', fontSize: '0.85rem', color: '#ccc' }}>
+                    <span style={{ color: '#f59e0b' }}>✓</span> {f}
+                  </div>
+                ))}
+                <button
+                  onClick={() => checkout('starter')}
+                  style={{ width: '100%', marginTop: '16px', background: '#f59e0b', color: '#000', border: 'none', padding: '12px', borderRadius: '8px', fontWeight: 700, cursor: 'pointer' }}
+                >
+                  Start Starter
+                </button>
+              </div>
+
+              {/* Pro */}
+              <div style={{ background: '#0a0a0a', border: '2px solid #22c55e', borderRadius: '12px', padding: '24px', position: 'relative' }}>
+                <div style={{ position: 'absolute', top: '-12px', left: '50%', transform: 'translateX(-50%)', background: '#22c55e', color: '#000', fontSize: '0.7rem', fontWeight: 800, padding: '4px 12px', borderRadius: '20px' }}>BEST VALUE</div>
+                <div style={{ fontSize: '1rem', fontWeight: 800, color: '#22c55e', marginBottom: '4px' }}>⚡ Pro</div>
+                <div style={{ fontSize: '2rem', fontWeight: 800, color: '#fff', marginBottom: '4px' }}>$24.99</div>
+                <div style={{ fontSize: '0.8rem', color: '#666', marginBottom: '20px' }}>per month</div>
+                {[
+                  'Everything in Starter',
+                  'AI proposal drafting',
+                  'Proposals in your voice',
+                  'Profile learning over time',
+                ].map((f, i) => (
+                  <div key={i} style={{ display: 'flex', gap: '8px', marginBottom: '10px', fontSize: '0.85rem', color: '#ccc' }}>
+                    <span style={{ color: '#22c55e' }}>✓</span> {f}
+                  </div>
+                ))}
+                <button
+                  onClick={() => checkout('pro')}
+                  style={{ width: '100%', marginTop: '16px', background: '#22c55e', color: '#000', border: 'none', padding: '12px', borderRadius: '8px', fontWeight: 700, cursor: 'pointer' }}
+                >
+                  Start Pro
+                </button>
+              </div>
             </div>
 
-            <div style={{ background: '#0a0a0a', borderRadius: '10px', padding: '20px', marginBottom: '24px', textAlign: 'center' }}>
-              <div style={{ fontSize: '2.5rem', fontWeight: 800, color: '#22c55e' }}>$9.99</div>
-              <div style={{ fontSize: '0.85rem', color: '#666' }}>per month — cancel anytime</div>
-              <div style={{ fontSize: '0.75rem', color: '#444', marginTop: '8px' }}>One landed gig pays for years of GigWinner</div>
-            </div>
-
-            <button
-              onClick={async () => {
-  const res = await fetch('/api/checkout', { method: 'POST' });
-  const data = await res.json();
-  if (data.url) window.location.href = data.url;
-}}
-              style={{ width: '100%', background: '#22c55e', color: '#000', border: 'none', padding: '16px', borderRadius: '8px', fontWeight: 800, fontSize: '1.1rem', cursor: 'pointer', marginBottom: '12px' }}
-            >
-              Start Pro — $9.99/month
-            </button>
             <button
               onClick={() => setShowUpgrade(false)}
               style={{ width: '100%', background: 'transparent', color: '#666', border: '1px solid #333', padding: '12px', borderRadius: '8px', cursor: 'pointer', fontSize: '0.9rem' }}
@@ -223,7 +269,7 @@ export default function Home() {
             {loading ? '🔍 Scanning Upwork...' : '⚡ Find Matching Gigs'}
           </button>
 
-          {!isPro && searchCount >= FREE_LIMIT && (
+          {!isPaid && searchCount >= FREE_LIMIT && (
             <div style={{ marginTop: '12px', textAlign: 'center', fontSize: '0.85rem', color: '#f59e0b' }}>
               You've used your free search for today.{' '}
               <span onClick={() => setShowUpgrade(true)} style={{ color: '#22c55e', cursor: 'pointer', fontWeight: 700 }}>Upgrade for unlimited →</span>
@@ -277,7 +323,7 @@ export default function Home() {
                     disabled={generatingProposal === i}
                     style={{ background: isPro ? '#1a1a1a' : '#0d1a0d', color: isPro ? '#22c55e' : '#2a5c2a', border: `1px solid ${isPro ? '#22c55e' : '#2a5c2a'}`, padding: '6px 14px', borderRadius: '6px', fontSize: '0.8rem', fontWeight: 600, cursor: 'pointer' }}
                   >
-                    {generatingProposal === i ? '✍️ Writing...' : isPro ? '✍️ Draft Proposal' : '🔒 Draft Proposal'}
+                    {generatingProposal === i ? '✍️ Writing...' : isPro ? '✍️ Draft Proposal' : '🔒 Draft Proposal (Pro)'}
                   </button>
                   {job.url && (
                     <a href={job.url} target="_blank" rel="noopener noreferrer" style={{ marginLeft: 'auto', background: '#22c55e', color: '#000', padding: '6px 16px', borderRadius: '6px', fontWeight: 700, fontSize: '0.8rem', textDecoration: 'none' }}>
@@ -286,7 +332,6 @@ export default function Home() {
                   )}
                 </div>
 
-                {/* Proposal Output */}
                 {proposals[i] && (
                   <div style={{ marginTop: '16px', background: '#0d1a0d', border: '1px solid #1a3d1a', borderRadius: '8px', padding: '16px' }}>
                     <div style={{ fontSize: '0.75rem', fontWeight: 700, color: '#22c55e', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '1px' }}>

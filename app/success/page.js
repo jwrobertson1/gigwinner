@@ -1,12 +1,14 @@
 'use client';
 import { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 
 export default function Success() {
   const router = useRouter();
+  const searchParams = useSearchParams();
 
   useEffect(() => {
-    document.cookie = 'gigwinner_pro=true; max-age=2592000; path=/';
+    const tier = searchParams.get('tier') || 'starter';
+    document.cookie = `gigwinner_tier=${tier}; max-age=2592000; path=/`;
     setTimeout(() => router.push('/'), 3000);
   }, []);
 
