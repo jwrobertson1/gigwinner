@@ -4,8 +4,8 @@ import Stripe from 'stripe';
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
 const PRICES = {
-  starter: 'price_1TIZwrPBg5BgUcMpZ3Amvj0J',
-  pro: 'price_1TIce5PBg5BgUcMpKfKZF5cA'
+  starter: 'price_1TJEAjPBg5BgUcMppMxObJQQ',
+  pro: 'price_1TJE7tPBg5BgUcMpIwl6SQem'
 };
 
 export async function POST(request) {
