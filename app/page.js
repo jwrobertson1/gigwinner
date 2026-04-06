@@ -12,6 +12,8 @@ export default function Home() {
   const [error, setError] = useState('');
   const [searchCount, setSearchCount] = useState(0);
   const [showUpgrade, setShowUpgrade] = useState(false);
+  const [showProfile, setShowProfile] = useState(false);
+  const [profileSaved, setProfileSaved] = useState(false);
   const [proposals, setProposals] = useState({});
   const [generatingProposal, setGeneratingProposal] = useState(null);
   const [tier, setTier] = useState('free');
@@ -29,10 +31,29 @@ export default function Home() {
     } else {
       localStorage.setItem('gw_usage', JSON.stringify({ date: today, count: 0 }));
     }
+
+    // Load saved profile
+    const savedProfile = JSON.parse(localStorage.getItem('gw_profile') || '{}');
+    if (savedProfile.skills) setSkills(savedProfile.skills);
+    if (savedProfile.bio) setBio(savedProfile.bio);
+    if (savedProfile.skills || savedProfile.bio) setProfileSaved(true);
   }, []);
 
   const isPaid = tier === 'starter' || tier === 'pro';
   const isPro = tier === 'pro';
+
+  const saveProfile = () => {
+    localStorage.setItem('gw_profile', JSON.stringify({ skills, bio }));
+    setProfileSaved(true);
+    setShowProfile(false);
+  };
+
+  const clearProfile = () => {
+    localStorage.removeItem('gw_profile');
+    setSkills('');
+    setBio('');
+    setProfileSaved(false);
+  };
 
   const incrementSearch = () => {
     const today = new Date().toDateString();
@@ -123,6 +144,12 @@ export default function Home() {
               {searchesLeft} free search{searchesLeft !== 1 ? 'es' : ''} left today
             </div>
           )}
+          <button
+            onClick={() => setShowProfile(true)}
+            style={{ background: 'transparent', color: profileSaved ? '#22c55e' : '#666', border: `1px solid ${profileSaved ? '#22c55e' : '#444'}`, padding: '6px 14px', borderRadius: '6px', fontSize: '0.8rem', cursor: 'pointer', fontWeight: 600 }}
+          >
+            {profileSaved ? '✓ Profile Saved' : '👤 Set Up Profile'}
+          </button>
           {tier === 'pro' ? (
             <div style={{ background: '#22c55e', color: '#000', padding: '6px 14px', borderRadius: '20px', fontSize: '0.8rem', fontWeight: 700 }}>
               ⚡ Pro
@@ -149,6 +176,64 @@ export default function Home() {
           )}
         </div>
       </div>
+
+      {/* Profile Modal */}
+      {showProfile && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.8)', zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px' }}>
+          <div style={{ background: '#111', border: '1px solid #333', borderRadius: '16px', padding: '40px', maxWidth: '560px', width: '100%' }}>
+            <div style={{ fontSize: '1.3rem', fontWeight: 800, color: '#22c55e', marginBottom: '8px' }}>👤 Your Profile</div>
+            <div style={{ fontSize: '0.9rem', color: '#888', marginBottom: '24px' }}>Save your skills and background once — GigWinner will use them automatically for every search and proposal.</div>
+
+            <div style={{ marginBottom: '16px' }}>
+              <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, color: '#888', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '1px' }}>
+                Your Skills
+              </label>
+              <input
+                value={skills}
+                onChange={e => setSkills(e.target.value)}
+                placeholder="e.g. JavaScript, Google Apps Script, Claude API, Node.js"
+                style={{ width: '100%', padding: '12px 16px', background: '#1a1a1a', border: '1px solid #333', borderRadius: '8px', color: '#fff', fontSize: '0.95rem', boxSizing: 'border-box' }}
+              />
+            </div>
+
+            <div style={{ marginBottom: '24px' }}>
+              <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, color: '#888', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '1px' }}>
+                Your Background
+              </label>
+              <textarea
+                value={bio}
+                onChange={e => setBio(e.target.value)}
+                placeholder="e.g. 17 years ops experience, built 4 AI SaaS products, strong in automation and workflow systems"
+                rows={4}
+                style={{ width: '100%', padding: '12px 16px', background: '#1a1a1a', border: '1px solid #333', borderRadius: '8px', color: '#fff', fontSize: '0.95rem', boxSizing: 'border-box', resize: 'vertical' }}
+              />
+            </div>
+
+            <button
+              onClick={saveProfile}
+              style={{ width: '100%', background: '#22c55e', color: '#000', border: 'none', padding: '14px', borderRadius: '8px', fontWeight: 700, fontSize: '1rem', cursor: 'pointer', marginBottom: '12px' }}
+            >
+              Save Profile
+            </button>
+            <div style={{ display: 'flex', gap: '12px' }}>
+              <button
+                onClick={() => setShowProfile(false)}
+                style={{ flex: 1, background: 'transparent', color: '#666', border: '1px solid #333', padding: '12px', borderRadius: '8px', cursor: 'pointer', fontSize: '0.9rem' }}
+              >
+                Cancel
+              </button>
+              {profileSaved && (
+                <button
+                  onClick={clearProfile}
+                  style={{ flex: 1, background: 'transparent', color: '#ef4444', border: '1px solid #ef4444', padding: '12px', borderRadius: '8px', cursor: 'pointer', fontSize: '0.9rem' }}
+                >
+                  Clear Profile
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Upgrade Modal */}
       {showUpgrade && (
@@ -236,30 +321,56 @@ export default function Home() {
             />
           </div>
 
-          <div style={{ marginBottom: '16px' }}>
-            <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, color: '#888', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '1px' }}>
-              Your Skills
-            </label>
-            <input
-              value={skills}
-              onChange={e => setSkills(e.target.value)}
-              placeholder="e.g. JavaScript, Google Apps Script, Claude API, Node.js, Vercel"
-              style={{ width: '100%', padding: '12px 16px', background: '#1a1a1a', border: '1px solid #333', borderRadius: '8px', color: '#fff', fontSize: '0.95rem', boxSizing: 'border-box' }}
-            />
-          </div>
+          {!profileSaved && (
+            <>
+              <div style={{ marginBottom: '16px' }}>
+                <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, color: '#888', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '1px' }}>
+                  Your Skills
+                </label>
+                <input
+                  value={skills}
+                  onChange={e => setSkills(e.target.value)}
+                  placeholder="e.g. JavaScript, Google Apps Script, Claude API, Node.js, Vercel"
+                  style={{ width: '100%', padding: '12px 16px', background: '#1a1a1a', border: '1px solid #333', borderRadius: '8px', color: '#fff', fontSize: '0.95rem', boxSizing: 'border-box' }}
+                />
+              </div>
 
-          <div style={{ marginBottom: '24px' }}>
-            <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, color: '#888', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '1px' }}>
-              Your Background
-            </label>
-            <textarea
-              value={bio}
-              onChange={e => setBio(e.target.value)}
-              placeholder="e.g. 17 years ops experience, built 4 AI SaaS products, strong in automation and workflow systems"
-              rows={3}
-              style={{ width: '100%', padding: '12px 16px', background: '#1a1a1a', border: '1px solid #333', borderRadius: '8px', color: '#fff', fontSize: '0.95rem', boxSizing: 'border-box', resize: 'vertical' }}
-            />
-          </div>
+              <div style={{ marginBottom: '16px' }}>
+                <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, color: '#888', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '1px' }}>
+                  Your Background
+                </label>
+                <textarea
+                  value={bio}
+                  onChange={e => setBio(e.target.value)}
+                  placeholder="e.g. 17 years ops experience, built 4 AI SaaS products, strong in automation and workflow systems"
+                  rows={3}
+                  style={{ width: '100%', padding: '12px 16px', background: '#1a1a1a', border: '1px solid #333', borderRadius: '8px', color: '#fff', fontSize: '0.95rem', boxSizing: 'border-box', resize: 'vertical' }}
+                />
+              </div>
+
+              <div style={{ marginBottom: '24px', padding: '12px 16px', background: '#0d1a0d', border: '1px solid #1a3d1a', borderRadius: '8px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <span style={{ fontSize: '0.85rem', color: '#888' }}>Save your profile so you never have to retype this again</span>
+                <button
+                  onClick={saveProfile}
+                  style={{ background: '#22c55e', color: '#000', border: 'none', padding: '8px 16px', borderRadius: '6px', fontWeight: 700, fontSize: '0.8rem', cursor: 'pointer', whiteSpace: 'nowrap' }}
+                >
+                  Save Profile
+                </button>
+              </div>
+            </>
+          )}
+
+          {profileSaved && (
+            <div style={{ marginBottom: '24px', padding: '12px 16px', background: '#0d1a0d', border: '1px solid #1a3d1a', borderRadius: '8px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <span style={{ fontSize: '0.85rem', color: '#22c55e' }}>✓ Profile loaded — your skills and background are set</span>
+              <button
+                onClick={() => setShowProfile(true)}
+                style={{ background: 'transparent', color: '#22c55e', border: '1px solid #22c55e', padding: '6px 14px', borderRadius: '6px', fontSize: '0.8rem', cursor: 'pointer' }}
+              >
+                Edit
+              </button>
+            </div>
+          )}
 
           <button
             onClick={search}
