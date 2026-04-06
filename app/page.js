@@ -146,7 +146,7 @@ export default function Home() {
           )}
           <button
             onClick={() => setShowProfile(true)}
-            style={{ background: 'transparent', color: profileSaved ? '#22c55e' : '#666', border: `1px solid ${profileSaved ? '#22c55e' : '#444'}`, padding: '6px 14px', borderRadius: '6px', fontSize: '0.8rem', cursor: 'pointer', fontWeight: 600 }}
+            style={{ background: profileSaved ? 'transparent' : '#0d2b0d', color: profileSaved ? '#22c55e' : '#22c55e', border: '1px solid #22c55e', padding: '6px 14px', borderRadius: '6px', fontSize: '0.8rem', cursor: 'pointer', fontWeight: 600, opacity: profileSaved ? 1 : 0.7 }}
           >
             {profileSaved ? '✓ Profile Saved' : '👤 Set Up Profile'}
           </button>
