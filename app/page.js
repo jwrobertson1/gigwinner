@@ -162,7 +162,7 @@ export default function Home() {
               {/* Starter */}
               <div style={{ background: '#0a0a0a', border: '1px solid #333', borderRadius: '12px', padding: '24px' }}>
                 <div style={{ fontSize: '1rem', fontWeight: 800, color: '#f59e0b', marginBottom: '4px' }}>⭐ Starter</div>
-                <div style={{ fontSize: '2rem', fontWeight: 800, color: '#fff', marginBottom: '4px' }}>$9.99</div>
+                <div style={{ fontSize: '2rem', fontWeight: 800, color: '#fff', marginBottom: '4px' }}>$4.99</div>
                 <div style={{ fontSize: '0.8rem', color: '#666', marginBottom: '20px' }}>per month</div>
                 {[
                   'Unlimited daily searches',
@@ -186,7 +186,7 @@ export default function Home() {
               <div style={{ background: '#0a0a0a', border: '2px solid #22c55e', borderRadius: '12px', padding: '24px', position: 'relative' }}>
                 <div style={{ position: 'absolute', top: '-12px', left: '50%', transform: 'translateX(-50%)', background: '#22c55e', color: '#000', fontSize: '0.7rem', fontWeight: 800, padding: '4px 12px', borderRadius: '20px' }}>BEST VALUE</div>
                 <div style={{ fontSize: '1rem', fontWeight: 800, color: '#22c55e', marginBottom: '4px' }}>⚡ Pro</div>
-                <div style={{ fontSize: '2rem', fontWeight: 800, color: '#fff', marginBottom: '4px' }}>$24.99</div>
+                <div style={{ fontSize: '2rem', fontWeight: 800, color: '#fff', marginBottom: '4px' }}>$14.99</div>
                 <div style={{ fontSize: '0.8rem', color: '#666', marginBottom: '20px' }}>per month</div>
                 {[
                   'Everything in Starter',
